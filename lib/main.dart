@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/splash_screnn.dart'; 
+import 'package:myapp/screens/splash_screen.dart'; 
+import 'package:myapp/screens/walkthrough_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreen(), 
+      home: const SplashScreen(),
     );
   }
 }
@@ -30,8 +31,8 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Home Screen'),
       ),
-      body: Center(
-        child: const Text('Welcome to the Home Screen!'),
+      body: const Center(
+        child: Text('Welcome to the Home Screen!'),
       ),
     );
   }
