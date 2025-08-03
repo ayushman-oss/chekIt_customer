@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/screens/splash_screen.dart'; 
-import 'package:myapp/screens/walkthrough_screen.dart';
-
+import 'package:CHEKiT/screens/splash_screen.dart'; 
+import 'package:CHEKiT/screens/walkthrough_screen.dart';
+import 'screens/login/signin_screen.dart'; 
+import 'screens/login/signup_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -17,6 +18,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const SplashScreen(),
+      debugShowCheckedModeBanner: false, 
+      initialRoute: '/',
+      routes: {
+        '/signin': (context) => const SignInScreen(),
+        '/signup': (context) => const SignUpScreen(), 
+      },
     );
   }
 }
