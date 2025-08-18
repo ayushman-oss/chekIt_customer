@@ -1,5 +1,7 @@
 import 'package:CHEKiT/screens/Home/dashboard.dart';
+import 'package:CHEKiT/screens/Login/signup_screen.dart';
 import 'package:flutter/material.dart';
+import '/utils/route_transitions.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -31,12 +33,7 @@ class _SignInScreenState extends State<SignInScreen> {
     });
     if (_emailError == null && _passwordError == null) {
       // Proceed with login
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DashboardScreen(), 
-        ),
-      );
+      Navigator.pushReplacement(context, fadeRoute(const DashboardScreen()));
     }
   }
 
@@ -232,7 +229,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/signup');
+                            Navigator.push(context, fadeRoute(const SignUpScreen()));
                           },
                           child: const Text(
                             "Create Account",

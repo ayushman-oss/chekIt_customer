@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register.dart';
+import 'Signin_screen.dart'; // Add this import if not present
+import '/utils/route_transitions.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -34,10 +36,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
     if (_emailError == null && _passwordError == null) {
       // Proceed with signup
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const RegisterScreen()),
-      );
+      Navigator.pushReplacement(context, fadeRoute(const RegisterScreen()));
     }
   }
 
@@ -256,7 +255,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
+                            Navigator.pushReplacement(context, fadeRoute(const SignInScreen()));
                           },
                           child: const Text(
                             "Login",

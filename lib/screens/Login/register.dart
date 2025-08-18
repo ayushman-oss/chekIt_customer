@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'property_location_screen.dart';
 import '../subscription.dart';
+import '/utils/route_transitions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -376,10 +377,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Subscription()),
-                        );
+                        Navigator.pushReplacement(context, fadeRoute(const Subscription()));
                       },
                       child: const Text(
                         'Submit',

@@ -39,6 +39,7 @@ dependencies:
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
   webview_flutter: ^4.4.2
+  flutter_svg: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
