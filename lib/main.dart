@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:CHEKiT/screens/splash_screen.dart'; 
-import 'package:CHEKiT/screens/walkthrough_screen.dart';
+import 'package:Akatosh/screens/splash_screen.dart'; 
+import 'package:Akatosh/screens/walkthrough_screen.dart';
 import 'screens/login/signin_screen.dart'; 
 import 'screens/login/signup_screen.dart';
 void main() {
@@ -13,11 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CHEKiT',
+      title: 'AKATOSH',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.teal,
       ),
-      home: const SplashScreen(),
+      home: const SignInScreen(),
       debugShowCheckedModeBanner: false, 
       initialRoute: '/',
       routes: {

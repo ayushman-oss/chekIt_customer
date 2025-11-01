@@ -6,6 +6,7 @@ import 'dashboard.dart';
 import 'menu_screen.dart';
 import '/utils/route_transitions.dart';
 import 'edit_profile_screen.dart';
+import 'notification_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final int currentIndex;
@@ -138,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           } else if (index == 4) {
             Navigator.pushReplacement(context, fadeRoute(const MenuScreen()));
           } else if (index == 3) {
-            Navigator.pushReplacement(context, fadeRoute(const Service()));
+            Navigator.pushReplacement(context, fadeRoute(const NotificationScreen()));
           } else {
             setState(() {
               _currentIndex = index;

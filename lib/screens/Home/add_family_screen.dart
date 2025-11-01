@@ -1,4 +1,4 @@
-import 'package:CHEKiT/screens/Home/family_screen.dart';
+import 'package:Akatosh/screens/Home/family_screen.dart';
 import 'package:flutter/material.dart';
 import '../../utils/route_transitions.dart';
 import 'add_family_screen.dart';

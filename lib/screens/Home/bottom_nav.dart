@@ -1,6 +1,8 @@
 import 'dart:ui'; 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '/utils/route_transitions.dart';
+import 'gemini_chat_screen.dart';
 
 class BottomNavPainter extends CustomPainter {
   @override
@@ -98,9 +100,9 @@ class HomeBottomNav extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _navItem("assets/icons/dashboard.svg", "Dashboard", 0),
-                  _navItem("assets/icons/profile.svg", "Profile", 1),
+                  _navItem("assets/icons/profile.svg", "Conveyors", 1),
                   const SizedBox(width: 80), // Space for FAB
-                  _navItem("assets/icons/health.svg", "Services", 3),
+                  _navItem("assets/icons/health.svg", "Notifications", 3),
                   _navItem("assets/icons/menu.svg", "Menu", 4),
                 ],
               ),
@@ -308,12 +310,13 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _currentIndex,
         onTap: (index) {
           if (index == 2) {
-            _showFireAlert();
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
+            // Middle FAB -> open Gemini chat insights page
+            Navigator.push(context, fadeRoute(const GeminiChatScreen()));
+            return;
           }
+          setState(() {
+            _currentIndex = index;
+          });
         },
       ),
       extendBody: true,

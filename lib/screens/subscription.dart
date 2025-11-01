@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:CHEKiT/screens/Home/dashboard.dart';
+import 'package:Akatosh/screens/Home/dashboard.dart';
 
 class Subscription extends StatelessWidget {
   const Subscription({super.key});

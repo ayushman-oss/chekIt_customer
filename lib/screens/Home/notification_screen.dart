@@ -1,48 +1,59 @@
 import 'package:flutter/material.dart';
 import '/utils/route_transitions.dart';
 import 'menu_screen.dart';
+import 'profile_screen.dart';
+import 'bottom_nav.dart';
+import 'service_history_screen.dart';
 
-class NotificationScreen extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
+
+  @override
+  State<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  int _currentIndex = 3;
 
   @override
   Widget build(BuildContext context) {
     final notifications = [
       {
-        "type": "alert",
-        "title": "Heavy Rain Alert",
-        "desc": "Severe rainfall expected within 24 hrs. Possible flooding in low-lying areas. Travel only if necessary.",
-        "date": "16 May",
-        "color": Colors.red,
-      },
-      {
-        "type": "alert",
-        "title": "Emergency Fire Status – Initiated",
-        "desc": "Fire emergency initiated. Response team dispatched. Follow safety instructions and remain alert.",
-        "date": "25 Apr",
-        "color": Colors.red,
-      },
-      {
-        "type": "info",
-        "title": "Home Sprayed",
-        "desc": "The scheduled spraying has been completed. Please avoid the treated area for the next few hours as advised.",
-        "date": "2 Mar",
-        "color": Colors.green,
-      },
-      {
-        "type": "info",
-        "title": "Driver Arrived",
-        "desc": "Our technician is on-site now.",
-        "date": "15 Feb",
-        "color": Colors.purple,
-      },
-      {
-        "type": "info",
-        "title": "Service Request Received",
-        "desc": "We’ve received your request and will update you soon.We’ve received your request and will update you soon.We’ve received your request and will update you soon.We’ve received your request and will update you soon.",
-        "date": "2 Mar",
-        "color": Colors.orange,
-      },
+  "type": "alert",
+  "title": "Conveyor Belt Breakdown – CV-102",
+  "desc": "Major belt tear detected on CV-102 near Transfer Tower T3. Material flow of bauxite from Mines Yard to Crusher Unit halted. Maintenance team dispatched for inspection and belt jointing.",
+  "date": "16 May",
+  "color": Colors.red,
+},
+{
+  "type": "alert",
+  "title": "Motor Overload Trip – CV-210",
+  "desc": "Drive motor overload trip on CV-210. Alumina transfer from Calcination Section to Storage Silos temporarily stopped. Electrical and mechanical teams notified for fault analysis.",
+  "date": "25 Apr",
+  "color": Colors.red,
+},
+{
+  "type": "info",
+  "title": "Conveyor Belt CV-105 Serviced",
+  "desc": "Routine maintenance and roller replacement completed on CV-105. Material transfer of crushed bauxite from Crusher House to Pre-blending Yard resumed.",
+  "date": "2 Mar",
+  "color": Colors.green,
+},
+{
+  "type": "info",
+  "title": "Lubrication Completed – CV-301 Drive Unit",
+  "desc": "Drive pulley and gear unit lubrication completed at CV-301. This belt carries alumina from Storage Silo to Loading Conveyor. System running normally.",
+  "date": "15 Feb",
+  "color": Colors.purple,
+},
+{
+  "type": "info",
+  "title": "Maintenance Request Logged – CV-220",
+  "desc": "A service request has been raised for CV-220 due to abnormal belt noise during alumina transfer from Refinery Unit to Packing Section. Awaiting scheduling confirmation.",
+  "date": "2 Mar",
+  "color": Colors.orange,
+},
+
     ];
 
     return Scaffold(
@@ -169,6 +180,23 @@ class NotificationScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: HomeBottomNav(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          if (index == _currentIndex) return;
+          if (index == 1) {
+            Navigator.pushReplacement(context, fadeRoute(const ServiceHistoryScreen()));
+          } else if (index == 4) {
+            Navigator.pushReplacement(context, fadeRoute(const MenuScreen()));
+          } else if (index == 3) {
+            Navigator.pushReplacement(context, fadeRoute(const NotificationScreen()));
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
+        },
       ),
     );
   }

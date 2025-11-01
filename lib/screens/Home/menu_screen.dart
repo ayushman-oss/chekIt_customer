@@ -27,13 +27,13 @@ class _MenuScreenState extends State<MenuScreen> {
 
   final List<String> menuItems = [
     "About Us",
-    "Manage Subscriptions",
-    "Service History",
-    "My Payments",
-    "Notifications",
+    //"Manage Subscriptions",
+    //"Service History",
+    //"My Payments",
+    //"Notifications",
     "Change Password",
     "Contact",
-    "Family Member",
+    //"Family Member",
   ];
 
   @override
@@ -174,9 +174,9 @@ class _MenuScreenState extends State<MenuScreen> {
           if (index == 0) {
             Navigator.pushReplacement(context, fadeRoute(const DashboardScreen()));
           } else if (index == 1) {
-            Navigator.pushReplacement(context, fadeRoute(const ProfileScreen()));
+            Navigator.pushReplacement(context, fadeRoute(const ServiceHistoryScreen()));
           }  else if (index == 3) {
-            Navigator.pushReplacement(context, fadeRoute(const Service()));
+            Navigator.pushReplacement(context, fadeRoute(const NotificationScreen()));
           } else {
             setState(() {
               _currentIndex = index;

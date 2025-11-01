@@ -9,6 +9,9 @@ import 'profile_screen.dart';
 import 'menu_screen.dart';
 import 'service_screen.dart';
 import '/utils/route_transitions.dart';
+import 'notification_screen.dart';
+import 'service_history_screen.dart';
+import 'gemini_chat_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,7 +22,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
-  int _selectedTab = 0;
   String _location = 'Fetching location...';
   double? _latitude;
   double? _longitude;
@@ -41,7 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _checkAndFetchLocation() async {
     if (_isLoadingLocation || !mounted) return;
-    
+
     setState(() {
       _isLoadingLocation = true;
       _location = 'Checking permissions...';
@@ -96,7 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _fetchLocation() async {
     if (!mounted) return;
-    
+
     setState(() {
       _location = 'Getting location...';
     });
@@ -106,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         desiredAccuracy: LocationAccuracy.high,
         timeLimit: const Duration(seconds: 15),
       );
-      
+
       final lat = position.latitude;
       final lon = position.longitude;
 
@@ -132,17 +134,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       String? locationName = await _tryLocationIQ(lat, lon);
       locationName ??= await _tryNominatim(lat, lon);
-      
+
       if (mounted) {
         setState(() {
-          _location = locationName ?? 'Lat: ${lat.toStringAsFixed(4)}, Lon: ${lon.toStringAsFixed(4)}';
+          _location = locationName ??
+              'Lat: ${lat.toStringAsFixed(4)}, Lon: ${lon.toStringAsFixed(4)}';
           _isLoadingLocation = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _location = 'Lat: ${lat.toStringAsFixed(4)}, Lon: ${lon.toStringAsFixed(4)}';
+          _location =
+              'Lat: ${lat.toStringAsFixed(4)}, Lon: ${lon.toStringAsFixed(4)}';
           _isLoadingLocation = false;
         });
       }
@@ -162,11 +166,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final address = data['address'];
-        
+
         if (address != null) {
           final city = address['city'] ?? address['town'] ?? address['village'];
           final state = address['state'] ?? address['region'];
-          
+
           if (city != null && state != null) {
             return '$city, $state';
           }
@@ -192,11 +196,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final address = data['address'];
-        
+
         if (address != null) {
           final city = address['city'] ?? address['town'] ?? address['village'];
           final state = address['state'];
-          
+
           if (city != null && state != null) {
             return '$city, $state';
           }
@@ -241,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         SizedBox(height: 20),
                         Text(
-                          'Colin',
+                          'Akatosh',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 32,
@@ -253,11 +257,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const Spacer(),
-                    
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.location_on, color: Color(0xFF3DDC97), size: 34),
+                        const Icon(
+                          Icons.location_on,
+                          color: Color(0xFF3DDC97),
+                          size: 34,
+                        ),
                         const SizedBox(width: 10),
                         ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 100),
@@ -282,7 +289,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               height: 14,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF18D8FF)),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF18D8FF),
+                                ),
                               ),
                             ),
                           ),
@@ -291,51 +300,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
                 const SizedBox(height: 28),
-                // Tabs
-                Row(
-                  children: [
-                    _tabButton('Map', 0),
-                    const SizedBox(width: 10),
-                    _tabButton('Forecast', 1),
-                    const SizedBox(width: 10),
-                    _tabButton('Weather', 2),
-                    const SizedBox(width: 10),
-                    _tabButton('History', 3),
-                  ],
-                ),
-                const SizedBox(height: 28),
               ],
             ),
           ),
-
           Expanded(
             child: Container(
               width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 4), // Small bottom margin to prevent overflow
-              child: IndexedStack(
-                index: _selectedTab,
-                children: [
-                  WindyEmbeddedMap(
-                    //location: _location,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                  ),
-                  WindyForecast(
-                    //location: _location,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                  ),
-                  WindyWeather(
-                    //location: _location,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                  ),
-                  WindyHistory(
-                    //location: _location,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                  ),
-                ],
+              margin: const EdgeInsets.only(bottom: 4),
+              child: const PlantMap(
+                imageAsset: 'assets/images/plant_layout.png',
               ),
             ),
           ),
@@ -345,50 +318,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
         currentIndex: _currentIndex,
         onTap: (index) {
           if (index == _currentIndex) return;
-          if (index == 1) {
-            Navigator.pushReplacement(context, fadeRoute(const ProfileScreen()));
-          } else if (index == 4) {
-            Navigator.pushReplacement(context, fadeRoute(const MenuScreen()));
-          }  else if (index == 3) {
-            Navigator.pushReplacement(context, fadeRoute(const Service()));
+          if (index == 0) {
+            Navigator.pushReplacement(context, fadeRoute(const DashboardScreen()));
+          } else if (index == 1) {
+            Navigator.pushReplacement(context, fadeRoute(const ServiceHistoryScreen()));
+          } else if (index == 2) {
+            Navigator.push(context, fadeRoute(const GeminiChatScreen()));
+          } else if (index == 3) {
+            Navigator.pushReplacement(context, fadeRoute(const NotificationScreen()));
           } else {
-            setState(() {
-              _currentIndex = index;
-            });
+            setState(() { _currentIndex = index; });
           }
         },
       ),
     );
   }
+}
 
-  Widget _tabButton(String label, int tabIndex) {
-    final selected = _selectedTab == tabIndex;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedTab = tabIndex;
-        });
-      },
-      child: Container(
-        height: 36,
-        width: 104,
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF18D8FF) : const Color(0xFF232323),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              color: selected ? Colors.black : const Color(0xFF18D8FF),
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              height: 1.0,
-            ),
+// ---------- Plant Map Widget ----------
+class PlantMap extends StatelessWidget {
+  final String imageAsset;
+
+  const PlantMap({
+    super.key,
+    required this.imageAsset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background image - plant layout
+              Positioned.fill(
+                child: Image.asset(
+                  imageAsset,
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, st) => Container(
+                    color: const Color(0xFF222222),
+                    child: const Center(
+                      child: Text(
+                        'Plant Layout Image\nPlace your image at:\nassets/plant_layout.png',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white38,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

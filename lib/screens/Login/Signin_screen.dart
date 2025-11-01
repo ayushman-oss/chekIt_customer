@@ -1,5 +1,5 @@
-import 'package:CHEKiT/screens/Home/dashboard.dart';
-import 'package:CHEKiT/screens/Login/signup_screen.dart';
+import 'package:Akatosh/screens/Home/dashboard.dart';
+import 'package:Akatosh/screens/Login/signup_screen.dart';
 import 'package:flutter/material.dart';
 import '/utils/route_transitions.dart';
 
@@ -17,16 +17,17 @@ class _SignInScreenState extends State<SignInScreen> {
   String? _emailError;
   String? _passwordError;
 
-  bool _validateEmail(String email) {
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegex.hasMatch(email);
-  }
+bool _validateEmail(String input) {
+  final codeRegex = RegExp(r'^[a-zA-Z0-9]{8}$');
+  return codeRegex.hasMatch(input);
+}
+
 
   void _onLogin() {
     setState(() {
       _emailError = _validateEmail(_emailController.text.trim())
           ? null
-          : "Enter a valid email address";
+          : "Enter a valid Empolyee ID";
       _passwordError = _passwordController.text.isEmpty
           ? "Password cannot be empty"
           : null;
@@ -91,7 +92,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             const SizedBox(height: 32),
                             const Text(
-                              "Enter Email Address",
+                              "Enter Employee ID",
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 20,
@@ -101,7 +102,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             const SizedBox(height: 8),
                             TextField(
                               controller: _emailController,
-                              keyboardType: TextInputType.emailAddress,
+                              keyboardType: TextInputType.text,
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: const Color(0xFF2D2D2D),
@@ -220,29 +221,29 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don’t have an account? ",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, fadeRoute(const SignUpScreen()));
-                          },
-                          child: const Text(
-                            "Create Account",
-                            style: TextStyle(
-                              color: Color(0xFF6DDCFF),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     const Text(
+                    //       "Don’t have an account? ",
+                    //       style: TextStyle(color: Colors.white, fontSize: 16),
+                    //     ),
+                    //     GestureDetector(
+                    //       onTap: () {
+                    //         Navigator.push(context, fadeRoute(const SignUpScreen()));
+                    //       },
+                    //       child: const Text(
+                    //         "Create Account",
+                    //         style: TextStyle(
+                    //           color: Color(0xFF6DDCFF),
+                    //           fontWeight: FontWeight.bold,
+                    //           fontSize: 16,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // const SizedBox(height: 8),
                   ],
                 ),
               ),
