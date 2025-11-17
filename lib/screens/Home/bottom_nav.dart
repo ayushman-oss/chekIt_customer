@@ -107,34 +107,41 @@ class HomeBottomNav extends StatelessWidget {
                 ],
               ),
             ),
-            // Floating Fire Button (red circle, white SVG in middle)
+
             Positioned(
-              top: -48, // Sits just above the curve
+              top: -48,
               left: MediaQuery.of(context).size.width / 2 - 32,
               child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
                 onTap: () => onTap(2),
-                child: Container(
-                  width: 68,
-                  height: 68,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE53E3E),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color.fromARGB(140, 255, 255, 255),
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
+                child: SizedBox(
+                  width: 80, 
+                  height: 80,
                   child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/FAB.svg',
-                      width: 36,
-                      height: 36,
-                      colorFilter: const ColorFilter.mode(
-                        Color.fromARGB(255, 255, 255, 255),
-                        BlendMode.srcIn,
+                    child: Container(
+                      width: 68,
+                      height: 68,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE53E3E),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromARGB(140, 255, 255, 255),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assets/icons/FAB.svg',
+                          width: 36,
+                          height: 36,
+                          colorFilter: const ColorFilter.mode(
+                            Color.fromARGB(255, 255, 255, 255),
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       ),
                     ),
                   ),

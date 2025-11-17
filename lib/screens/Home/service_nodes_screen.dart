@@ -7,7 +7,8 @@ import 'service_history_screen.dart';
 
 class ServiceNodesScreen extends StatefulWidget {
   final String beltId;
-  const ServiceNodesScreen({super.key, required this.beltId});
+  final String baseUrl;
+  const ServiceNodesScreen({super.key, required this.beltId, required this.baseUrl});
 
   @override
   State<ServiceNodesScreen> createState() => _ServiceNodesScreenState();
@@ -21,7 +22,11 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
   String _errorMessage = '';
   Timer? _autoRefreshTimer;
 
-  static const String baseUrl = "http://127.0.0.1:1880";
+  // If user taps refresh while a fetch is in progress we queue one more manual fetch.
+  bool _pendingManualRefresh = false;
+
+  // Keep track of the set of node ids we have seen previously
+  Set<String> _knownNodeIds = {};
 
   @override
   void initState() {
@@ -37,18 +42,20 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
   }
 
   void _startAutoRefresh() {
-    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (mounted && !_isRefreshing) {
+    // Periodic auto-refresh: will trigger a fetch as long as one isn't already running.
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (!_isRefreshing) {
         _fetchNodes();
       }
-    });
+     });
   }
 
   Future<void> _fetchNodes() async {
     if (!mounted) return;
-    
+
     final bool isInitialLoad = _isLoading;
-    
+
     if (isInitialLoad) {
       setState(() {
         _isLoading = true;
@@ -57,9 +64,13 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
     }
 
     try {
+      // Snapshot previous timestamps & known ids so we can detect updates/new/removed nodes
+      final prevTimestamps = Map<String, int>.from(lastKnownTimestamps);
+      final prevKnownIds = Set<String>.from(_knownNodeIds);
+
       // Step 1: Get list of node IDs
       final listResponse = await http.get(
-        Uri.parse('$baseUrl/get-nodes').replace(queryParameters: {
+        Uri.parse('${widget.baseUrl}/get-nodes').replace(queryParameters: {
           'belt_id': widget.beltId.replaceAll('-', '_'),
           'node_id': '',
         }),
@@ -97,7 +108,7 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
       for (String nodeId in nodeIds) {
         try {
           final nodeResponse = await http.get(
-            Uri.parse('$baseUrl/get-nodes').replace(queryParameters: {
+            Uri.parse('${widget.baseUrl}/get-nodes').replace(queryParameters: {
               'belt_id': widget.beltId.replaceAll('-', '_'),
               'node_id': nodeId,
             }),
@@ -115,11 +126,51 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
         }
       }
 
+      // After parsing, determine added/removed/updated nodes by comparing snapshots
+      final fetchedIds = fetchedNodes.map((n) => n['id'] as String).toSet();
+      final newIds = fetchedIds.difference(prevKnownIds);
+      final removedIds = prevKnownIds.difference(fetchedIds);
+
+      // Ensure lastKnownTimestamps has entries for newly discovered nodes (use returned lastUpdate if available)
+      for (final n in fetchedNodes) {
+        final id = n['id'] as String;
+        final lastUpdate = n['lastUpdate'] as int?;
+        if (newIds.contains(id)) {
+          if (lastUpdate != null) {
+            lastKnownTimestamps[id] = lastUpdate;
+          } else {
+            // initialize to 0 if no timestamp present yet
+            lastKnownTimestamps.putIfAbsent(id, () => 0);
+          }
+        }
+      }
+
+      // Remove timestamps for removed nodes to keep tracking clean
+      for (final id in removedIds) {
+        lastKnownTimestamps.remove(id);
+      }
+
+      // Update known ids set
+      _knownNodeIds = fetchedIds;
+
       if (mounted) {
         setState(() {
           nodes = fetchedNodes;
           _isLoading = false;
         });
+        // Debug: show when fetch completed and node lastUpdate timestamps
+        debugPrint('[ServiceNodesScreen][_fetchNodes] fetched at ${DateTime.now().toIso8601String()}');
+        // print per-node status comparing previous snapshot
+        for (final n in fetchedNodes) {
+          final id = n['id'] as String;
+          final last = n['lastUpdate'] as int?;
+          final prev = prevTimestamps[id];
+          final note = prev == null
+              ? (newIds.contains(id) ? 'NEW' : 'UNKNOWN')
+              : (last == null ? 'no-ts' : (last > prev ? 'UPDATED' : 'SAME'));
+          debugPrint('  node=$id prev=${prev ?? '-'} now=${last ?? '-'} => $note');
+        }
+        if (removedIds.isNotEmpty) debugPrint('  removed nodes: ${removedIds.join(', ')}');
       }
     } catch (e) {
       if (mounted) {
@@ -181,8 +232,15 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
     if (latestTimestamp != null) {
       if (previousLatestTimestamp == null || latestTimestamp > previousLatestTimestamp) {
         isActive = true;
+        // Do not overwrite other logic — keep lastKnownTimestamps current here
         lastKnownTimestamps[nodeId] = latestTimestamp;
+      } else {
+        // timestamp same or older => keep previous known timestamp if present
+        lastKnownTimestamps.putIfAbsent(nodeId, () => previousLatestTimestamp ?? latestTimestamp ?? 0);
       }
+    } else {
+      // No timestamp in readings: ensure there is an entry to indicate presence
+      lastKnownTimestamps.putIfAbsent(nodeId, () => previousLatestTimestamp ?? 0);
     }
 
     // Convert sensor data to display format with timelines
@@ -244,7 +302,17 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
   }
 
   Future<void> _refreshNodes() async {
-    if (_isRefreshing || !mounted) return;
+    if (!mounted) return;
+
+    // If a fetch is already running, queue one manual refresh to run after completion
+    if (_isRefreshing) {
+      setState(() => _pendingManualRefresh = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Refresh queued'), duration: Duration(milliseconds: 700)),
+      );
+      return;
+    }
+
     setState(() => _isRefreshing = true);
     try {
       await _fetchNodes();
@@ -257,7 +325,14 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
         ),
       );
     } finally {
-      if (mounted) setState(() => _isRefreshing = false);
+      if (!mounted) return;
+      setState(() => _isRefreshing = false);
+      // If a manual refresh was queued while we were fetching, run it now.
+      if (_pendingManualRefresh) {
+        setState(() => _pendingManualRefresh = false);
+        // small delay to allow UI state settle
+        Future.microtask(() => _refreshNodes());
+      }
     }
   }
 
@@ -295,8 +370,7 @@ class _ServiceNodesScreenState extends State<ServiceNodesScreen> {
     if (lowerType.contains('current')) return 'A';
     if (lowerType.contains('power')) return 'W';
     if (lowerType.contains('speed')) return 'rpm';
-    if (lowerType.contains('weight')) return 'kg';
-    if (lowerType.contains('humid')) return '%';
+    if (lowerType.contains('weight')) return 'g';
     if (lowerType.contains('pulse') || lowerType.contains('delay')) return 'ms';
     return '';
   }
